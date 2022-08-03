@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21D49" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Header" representedClassName="Header" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="key" optional="YES" attributeType="String"/>
+        <attribute name="value" optional="YES" attributeType="String"/>
+        <relationship name="request" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Request"/>
+    </entity>
+    <entity name="Request" representedClassName="Request" syncable="YES" codeGenerationType="class">
+        <attribute name="contentType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="headerName" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="headerValue" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastResponseBody" optional="YES" attributeType="Binary"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="requestBody" optional="YES" attributeType="Binary"/>
+        <attribute name="requestType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="url" optional="YES" attributeType="String"/>
+        <relationship name="group" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RequestGroup" inverseName="request" inverseEntity="RequestGroup"/>
+    </entity>
+    <entity name="RequestGroup" representedClassName="RequestGroup" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="request" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Request" inverseName="group" inverseEntity="Request"/>
+    </entity>
+    <elements>
+        <element name="Header" positionX="-54" positionY="54" width="128" height="89"/>
+        <element name="Request" positionX="-63" positionY="-18" width="128" height="179"/>
+        <element name="RequestGroup" positionX="-54" positionY="18" width="128" height="74"/>
+    </elements>
+</model>

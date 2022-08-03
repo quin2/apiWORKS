@@ -14,6 +14,8 @@
 		380CABE828727E660071524B /* apiWORKSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380CABE728727E660071524B /* apiWORKSTests.swift */; };
 		380CABF228727E660071524B /* apiWORKSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380CABF128727E660071524B /* apiWORKSUITests.swift */; };
 		380CABF428727E660071524B /* apiWORKSUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380CABF328727E660071524B /* apiWORKSUITestsLaunchTests.swift */; };
+		38F345E12873CF9900DBA4B4 /* APIModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 38F345DF2873CF9900DBA4B4 /* APIModel.xcdatamodeld */; };
+		38F345E32873E35E00DBA4B4 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38F345E22873E35E00DBA4B4 /* DataController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +47,9 @@
 		380CABED28727E660071524B /* apiWORKSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = apiWORKSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		380CABF128727E660071524B /* apiWORKSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = apiWORKSUITests.swift; sourceTree = "<group>"; };
 		380CABF328727E660071524B /* apiWORKSUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = apiWORKSUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		386FE0FE289A2F9900750D6D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		38F345E02873CF9900DBA4B4 /* APIModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = APIModel.xcdatamodel; sourceTree = "<group>"; };
+		38F345E22873E35E00DBA4B4 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +80,7 @@
 		380CABC928727E630071524B = {
 			isa = PBXGroup;
 			children = (
+				386FE0FE289A2F9900750D6D /* README.md */,
 				380CABD428727E640071524B /* apiWORKS */,
 				380CABE628727E660071524B /* apiWORKSTests */,
 				380CABF028727E660071524B /* apiWORKSUITests */,
@@ -100,6 +106,8 @@
 				380CABD928727E660071524B /* Assets.xcassets */,
 				380CABDE28727E660071524B /* apiWORKS.entitlements */,
 				380CABDB28727E660071524B /* Preview Content */,
+				38F345DF2873CF9900DBA4B4 /* APIModel.xcdatamodeld */,
+				38F345E22873E35E00DBA4B4 /* DataController.swift */,
 			);
 			path = apiWORKS;
 			sourceTree = "<group>";
@@ -260,7 +268,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				380CABD828727E640071524B /* ContentView.swift in Sources */,
+				38F345E32873E35E00DBA4B4 /* DataController.swift in Sources */,
 				380CABD628727E640071524B /* apiWORKSApp.swift in Sources */,
+				38F345E12873CF9900DBA4B4 /* APIModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,6 +425,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = apiWORKS/apiWORKS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -429,7 +440,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxs.apiWORKS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -442,6 +453,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = apiWORKS/apiWORKS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -456,7 +468,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxs.apiWORKS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -576,6 +588,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		38F345DF2873CF9900DBA4B4 /* APIModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				38F345E02873CF9900DBA4B4 /* APIModel.xcdatamodel */,
+			);
+			currentVersion = 38F345E02873CF9900DBA4B4 /* APIModel.xcdatamodel */;
+			path = APIModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 380CABCA28727E630071524B /* Project object */;
 }
