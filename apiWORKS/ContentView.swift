@@ -8,6 +8,14 @@
 import SwiftUI
 import CoreData
 
+extension NSTextView {
+    open override var frame: CGRect {
+        didSet {
+            self.isAutomaticQuoteSubstitutionEnabled = false
+        }
+    }
+}
+
 extension Binding where Value == String? {
     func onNone(_ fallback: String) -> Binding<String> {
         return Binding<String>(get: {
@@ -189,7 +197,7 @@ struct ContentView: View {
         
         //get content type from header
         var contentType = "application/json"
-        if(apiContentType == 1){
+        if(apiContentType == 0){
             contentType = "text/plain"
         }
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
@@ -199,7 +207,6 @@ struct ContentView: View {
         }
         
         //set request body
-        //TODO: make encoding explicit
         request.httpBody = apiRequest.data(using: .utf8)
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
