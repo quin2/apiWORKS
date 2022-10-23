@@ -19,13 +19,16 @@
         <relationship name="group" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RequestGroup" inverseName="request" inverseEntity="RequestGroup"/>
     </entity>
     <entity name="RequestGroup" representedClassName="RequestGroup" syncable="YES" codeGenerationType="class">
+        <attribute name="devMode" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="devPrefix" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="prodPrefix" optional="YES" attributeType="String"/>
         <relationship name="request" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Request" inverseName="group" inverseEntity="Request"/>
     </entity>
     <elements>
         <element name="Header" positionX="-54" positionY="54" width="128" height="89"/>
         <element name="Request" positionX="-63" positionY="-18" width="128" height="179"/>
-        <element name="RequestGroup" positionX="-54" positionY="18" width="128" height="74"/>
+        <element name="RequestGroup" positionX="-54" positionY="18" width="128" height="119"/>
     </elements>
 </model>

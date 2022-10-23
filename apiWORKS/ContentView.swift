@@ -8,59 +8,14 @@
 import SwiftUI
 import CoreData
 
-extension NSTextView {
-    open override var frame: CGRect {
-        didSet {
-            self.isAutomaticQuoteSubstitutionEnabled = false
-        }
-    }
-}
-
-extension Binding where Value == String? {
-    func onNone(_ fallback: String) -> Binding<String> {
-        return Binding<String>(get: {
-            return self.wrappedValue ?? fallback
-        }) { value in
-            self.wrappedValue = value
-        }
-    }
-}
-
-extension Optional where Wrapped == String {
-    var _bound: String? {
-        get {
-            return self
-        }
-        set {
-            self = newValue
-        }
-    }
-    public var bound: String {
-        get {
-            return _bound ?? ""
-        }
-        set {
-            _bound = newValue.isEmpty ? nil : newValue
-        }
-    }
-}
-
-extension String {
-    var isValidURL: Bool {
-        let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        if let match = detector.firstMatch(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count)) {
-            // it is a link, if the match covers the whole string
-            return match.range.length == self.utf16.count
-        } else {
-            return false
-        }
-    }
-}
-
 struct RequestHeader: Identifiable, Hashable {
     let id = UUID()
     var key = ""
     var value = ""
+}
+
+enum ApiMode {
+    case Development, Production
 }
 
 //TODO: verify valid JSON can be sent
@@ -74,15 +29,15 @@ struct ContentView: View {
     
     @State private var reqHeader = [RequestHeader]()
     @State private var presentAddAlert = false
-    @State private var tempGroupName = ""
     
     @State private var presentAddCallAlert = false;
-    @State private var tempCallName = ""
-    @State private var tempCallParent: RequestGroup?;
     
     @State private var loadingData: Bool = false;
     
     @State private var presentConfirmRemoveCall: Bool = false;
+    @State private var presentConfirmRemoveGroup: Bool = false;
+    
+    @State private var presentGroupSettings = false;
     
     @Environment(\.managedObjectContext) var moc
     
@@ -91,49 +46,6 @@ struct ContentView: View {
     @State private var selectedReq: Request?;
     
     @State private var removeTarget: Request?
-    
-    func addGroup() {
-        if(tempGroupName == ""){
-            presentAddAlert = false
-            return
-        }
-            
-        let group = RequestGroup(context: moc)
-        group.id = UUID()
-        group.name = tempGroupName
-        
-        try? moc.save()
-        
-        tempGroupName = ""
-        presentAddAlert = false
-    }
-    
-    func cancelAddGroup(){
-        presentAddAlert = false
-    }
-    
-    func addCall(){
-        if(tempCallName == "" || tempCallParent == nil){
-            presentAddCallAlert = false
-            return
-        }
-        
-        let call = Request(context: moc)
-        call.name = tempCallName
-        call.group = tempCallParent
-        
-        tempCallParent?.addToRequest(call)
-        
-        try? moc.save()
-        
-        tempCallName = ""
-        presentAddCallAlert = false
-        return
-    }
-    
-    func cancelAddCall(){
-        presentAddCallAlert = false;
-    }
     
     func startRemoveReq(req: Request){
         removeTarget = req;
@@ -164,28 +76,10 @@ struct ContentView: View {
         return request
     }
     
-    func removeHeader(header: RequestHeader){
-        guard let headerIndex = reqHeader.firstIndex(of: header) else { return }
-        reqHeader.remove(at: headerIndex)
-        
-        selectedReq?.headerName = reqHeader.map {$0.key}
-        selectedReq?.headerValue = reqHeader.map {$0.value}
-        
-        try? moc.save()
-    }
-    
-    func addHeader(){
-        reqHeader.append(RequestHeader())
-        selectedReq?.headerName = reqHeader.map {$0.key}
-        selectedReq?.headerValue = reqHeader.map {$0.value}
-        
-        try? moc.save()
-    }
-    
     func call(){
         loadingData = true;
         
-        let url = URL(string: apiUrl)!
+        let url = URL(string: getCurrentURL(request: selectedReq))!
 
         var request = URLRequest(url: url)
         //https://cocoacasts.com/networking-fundamentals-how-to-make-an-http-request-in-swift
@@ -232,6 +126,21 @@ struct ContentView: View {
            #endif
        }
     
+    func removeGroup(){
+        moc.delete((selectedReq?.group)!)
+        selectedReq = nil
+        
+        try? moc.save()
+        
+        presentConfirmRemoveGroup = false
+    }
+    
+    func getRemoveGroupStr() -> String{
+        var request = "Are you sure you want to remove " + (selectedReq?.group?.name ?? "") + "?"
+        request += " There are " + String(selectedReq?.group?.request?.count ?? 0) + " requests in this group."
+        return request
+    }
+    
     var body: some View {
         NavigationView {
             List(apiGroups, selection: $selectedReq) { group in
@@ -272,114 +181,19 @@ struct ContentView: View {
                     Text("To begin, select a request or create a new one :)")
                 }
                 else if(selectedReq != nil) {
-                    HStack{
-                        Form {
-                            Section(header: Text(selectedReq?.name ?? "").font(.title)){
-                                HStack {
-                                    TextField("URL", text: $apiUrl){ //"URL", text: $apiUrl
-                                        selectedReq?.url = apiUrl
-                                        try? moc.save()
-                                    }
-                                    Picker(selection: $apiRequestType, label: Text("Method")) {
-                                        Text("GET").tag(0)
-                                        Text("POST").tag(1)
-                                    }
-                                    .onChange(of: apiRequestType) { newValue in
-                                        selectedReq?.requestType = Int16(newValue)
-                                        try? moc.save()
-                                    }
-                                    .frame(width: 200)
-                                    
-                                }
-                            }
-                        }
-                    }
+                    URLBar(selectedReq: $selectedReq, apiUrl: $apiUrl, apiRequestType: $apiRequestType)
                     TabView {
-                        Form {
-                            VStack {
-                                Picker(selection: $apiContentType, label: Text("Content Type")) {
-                                    Text("Plain text").tag(0)
-                                    Text("JSON").tag(1)
-                                }
-                                .onChange(of: apiContentType) { newValue in
-                                    selectedReq?.contentType = Int16(newValue)
-                                    
-                                    try? moc.save()
-                                }
-                                //TODO: better editor
-                                Section(header: Text("Request data")){
-                                    TextEditor(text: $apiRequest)
-                                        .onChange(of: apiRequest) { newValue in
-                                            selectedReq?.requestBody = newValue.data(using: .utf8)
-                                            
-                                            try? moc.save()
-                                        }
-                                }
-                            }
-                        }
-                        .padding(10)
-                        .tabItem {
-                            Text("Content")
-                        }
-                        VStack {
-                            ForEach($reqHeader) { $myReqHeader in
-                                HStack {
-                                    TextField("Key", text: $myReqHeader.key){
-                                        selectedReq?.headerName = reqHeader.map {$0.key}
-                                    }
-                                    TextField("Value", text: $myReqHeader.value){
-                                        selectedReq?.headerValue = reqHeader.map {$0.value}
-                                    }
-                                    Button(action: {removeHeader(header: myReqHeader)}) {
-                                        Image(systemName: "trash")
-                                            .frame(width: 20)
-                                    }
-                                }
-                            }
-                            HStack{
-                                Spacer()
-                                Button(action: addHeader){
-                                    Image(systemName: "plus")
-                                        .frame(width: 20)
-                                }
-                                .disabled(reqHeader.count >= 5)
-                            }
-                            Spacer()
-                        }
-                        .padding(10)
-                        .tabItem {
-                            Text("Headers")
-                        }
+                        ContentTab(selectedReq: $selectedReq, apiContentType: $apiContentType, apiRequest: $apiRequest)
+                        HeadersTab(selectedReq: $selectedReq, reqHeader: $reqHeader)
                     }
-                    HStack {
-                        Form {
-                            Section(header: Text("Result").font(.title2)){
-                                GeometryReader { geometry in
-                                    if(loadingData){
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle())
-                                            .position(x: geometry.frame(in: .local).midX, y: geometry.frame(in: .local).midY)
-                                    }
-                                    else{
-                                        ScrollView {
-                                            Text(apiResponse)
-                                                .lineLimit(nil)
-                                                .frame(width: geometry.size.width, alignment: .leading)
-                                                .padding(0)
-                                                .textSelection(.enabled)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ResultArea(loadingData: $loadingData, apiResponse: $apiResponse)
                     HStack{
                         Spacer()
                         Button(action: call){
                             Text("Request")
                         }
                     }
-                    .disabled(!apiUrl.isValidURL)
+                    .disabled(!getCurrentURL(request: selectedReq).isValidURL)
                 }
             }
             .padding(10)
@@ -400,6 +214,13 @@ struct ContentView: View {
                 }
             }
             ToolbarItem {
+                Button(action: {presentGroupSettings = true})
+                {
+                    Image(systemName: "folder.badge.gearshape")
+                }
+                .disabled(selectedReq == nil)
+            }
+            ToolbarItem {
                 Button(action: { presentAddCallAlert = true })
                 {
                     Image(systemName: "plus.square")
@@ -407,43 +228,24 @@ struct ContentView: View {
                 .disabled(apiGroups.count < 1)
             }
         }
+        .sheet(isPresented: $presentGroupSettings){
+            GroupSettingsSheet(presentGroupSettings: $presentGroupSettings, presentConfirmRemoveGroup: $presentConfirmRemoveGroup, selectedReq: $selectedReq)
+        }
         .sheet(isPresented: $presentAddAlert){
-            VStack{
-                Text("Enter the name of your new project").font(.headline)
-                TextField("Group Name", text: $tempGroupName)
-                HStack {
-                    Spacer()
-                    Button("Cancel", role: .cancel, action: cancelAddGroup)
-                    Button("OK", action: addGroup)
-                        .disabled(tempGroupName.isEmpty)
-                }
-            }
-            .frame(width: 300, height: 100)
-            .padding()
+            NewGroupSheet(presentAddAlert: $presentAddAlert)
         }
         .sheet(isPresented: $presentAddCallAlert){
-            VStack{
-                Text("New API call").font(.headline)
-                Picker(selection: $tempCallParent, label: Text("Project")) {
-                    ForEach(apiGroups, id: \.self) { group in
-                        Text(group.name ?? "").tag(group as RequestGroup?)
-                    }
-                }
-                TextField("Name", text: $tempCallName)
-                HStack {
-                    Spacer()
-                    Button("Cancel", role: .cancel, action: cancelAddCall)
-                    Button("OK", action: addCall)
-                        .disabled(tempCallName.isEmpty || tempCallParent == nil)
-                }
-            }
-            .frame(width: 300, height: 100)
-            .padding()
+            NewRequestSheet(presentAddCallAlert: $presentAddCallAlert)
         }
         .confirmationDialog("Remove request", isPresented: $presentConfirmRemoveCall) {
             Button("Yes", action: removeReq)
         } message: {
             Text(getRemoveReqStr())
+        }
+        .confirmationDialog("Remove group", isPresented: $presentConfirmRemoveGroup) {
+            Button("Yes", action: removeGroup)
+        } message: {
+            Text(getRemoveGroupStr())
         }
     }
 }
