@@ -3,6 +3,11 @@
 
 
 ### technical background
-* Everything is inside the single ContentView file. I need to split it up a little in the future.
 * Core Data is used to persist application state
+
+### roadmap
+* Better JSON and text editors
+* JSON error checking before post
+* Support more response types, including HTML and images
+* Oauth2 helpers
 
