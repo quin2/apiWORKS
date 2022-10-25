@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct URLBar: View {
     @Binding public var selectedReq: Request?
@@ -19,8 +20,9 @@ struct URLBar: View {
             Form {
                 Section(header: Text(selectedReq?.name ?? "").font(.title)){
                     HStack {
-                        TextField("URL: " + getCurrentPrefix(request: selectedReq), text: $apiUrl){ //"URL", text: $apiUrl
-                            selectedReq?.url = apiUrl
+                        TextField("URL: " + getCurrentPrefix(request: selectedReq), text: $apiUrl)
+                            .onReceive(Just(apiUrl)) { myUrl in //"URL", text: $apiUrl
+                            selectedReq?.url = myUrl
                             try? moc.save()
                         }
                         Picker(selection: $apiRequestType, label: Text("Method")) {

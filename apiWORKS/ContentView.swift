@@ -193,7 +193,6 @@ struct ContentView: View {
                             Text("Request")
                         }
                     }
-                    .disabled(!getCurrentURL(request: selectedReq).isValidURL)
                 }
             }
             .padding(10)
